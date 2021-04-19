@@ -1,0 +1,32 @@
+## @file
+# 
+# Sample DXE driver. Should print to log.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = GarandDriverDxe
+  FILE_GUID                      = 3a4b5165-7b03-4797-847a-bd87af715f7e
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = GarandDriverInit
+  UNLOAD_IMAGE                   = GarandDriverUnload
+
+[Sources]
+  GarandDriverDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  OvmfPkg/OvmfPkg.dec
+
+
+[LibraryClasses]
+  BaseLib
+  UefiDriverEntryPoint
+  DebugLib
+  UefiLib
+
+[Depex]
+  TRUE

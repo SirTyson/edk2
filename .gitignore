@@ -5,3 +5,9 @@ Build/
 __pycache__/
 tags/
 .vscode/
+BaseTools/BaseToolsBuild/
+bin/
+lib/
+lib64
+mu_nasm.2.15.5/
+pyvenv.cfg

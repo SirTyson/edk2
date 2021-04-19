@@ -231,6 +231,12 @@ INF  OvmfPkg/VirtioRngDxe/VirtioRng.inf
 INF  OvmfPkg/XenIoPciDxe/XenIoPciDxe.inf
 INF  OvmfPkg/XenBusDxe/XenBusDxe.inf
 INF  OvmfPkg/XenPvBlkDxe/XenPvBlkDxe.inf
+
+#GARAND STUFF:
+INF OvmfPkg/GarandDriverDxe/GarandDriverDxe.inf
+
+
+
 !if $(PVSCSI_ENABLE) == TRUE
 INF  OvmfPkg/PvScsiDxe/PvScsiDxe.inf
 !endif

@@ -220,6 +220,7 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
         args += " -global isa-debugcon.iobase=0x402"                        # debug messages out thru virtual io port
         args += " -net none"                                                # turn off network
         args += f" -drive file=fat:rw:{VirtualDrive},format=raw,media=disk" # Mount disk with startup.nsh
+        #args += " -cdrom /home/user/UEFI_workspace/ubuntu-18.04.5-desktop-amd64.iso -m 1024" # GARAND: Addition to boot 
 
         if (self.env.GetValue("QEMU_HEADLESS").upper() == "TRUE"):
             args += " -display none"  # no graphics
@@ -239,6 +240,7 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
             f = open(os.path.join(VirtualDrive, "startup.nsh"), "w")
             f.write("BOOT SUCCESS !!! \n")
             ## add commands here
+            # GARAND: Add built efi apps here
             f.write("reset -s\n")
             f.close()
 
