@@ -1,0 +1,40 @@
+## @file
+#
+# DXE/SMM Driver for Secure Kernel. DXE Phase handles kernel setup during boot. SMM handles entry 
+# into secure kernel via SMI.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SecureKernelSmm
+  FILE_GUID                      = 485237b5-0671-4904-9e71-936bcbabdc1f 
+  MODULE_TYPE                    = DXE_SMM_DRIVER
+  VERSION_STRING                 = 1.0
+  PI_SPECIFICATION_VERSION       = 0x0001000A
+  ENTRY_POINT                    = SecureKernelInit
+
+[Sources]
+  SecureKernelSmm.c
+
+[Packages]
+# Reguler DXE dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  OvmfPkg/OvmfPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  SmmServicesTableLib
+  DebugLib
+  UefiLib
+
+[Protocols]
+  gEfiSmmBase2ProtocolGuid        ## CONSUMES
+  gEfiSmmAccess2ProtocolGuid      ## CONSUMES
+  gEfiSmmSwDispatch2ProtocolGuid  ## CONSUMES
+
+[Depex]
+  TRUE

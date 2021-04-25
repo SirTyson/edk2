@@ -362,6 +362,11 @@ INF  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteSmm.inf
 INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmm.inf
 INF  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe.inf
 
+#
+# SombraOS driver (SMM)
+#
+INF OvmfPkg/SecureKernelSmm/SecureKernelSmm.inf 
+
 !else
 
 #

@@ -1015,6 +1015,11 @@
   }
   MdeModulePkg/Universal/Variable/RuntimeDxe/VariableSmmRuntimeDxe.inf
 
+  #
+  # SombraOS driver (SMM)
+  #
+  OvmfPkg/SecureKernelSmm/SecureKernelSmm.inf
+
 !else
 
   #

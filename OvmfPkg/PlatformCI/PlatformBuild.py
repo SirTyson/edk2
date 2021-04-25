@@ -219,8 +219,9 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
         args  = "-debugcon stdio"                                           # write messages to stdio
         args += " -global isa-debugcon.iobase=0x402"                        # debug messages out thru virtual io port
         args += " -net none"                                                # turn off network
-        args += f" -drive file=fat:rw:{VirtualDrive},format=raw,media=disk" # Mount disk with startup.nsh
+        #args += f" -drive file=fat:rw:{VirtualDrive},format=raw,media=disk" # Mount disk with startup.nsh
         #args += " -cdrom /home/user/UEFI_workspace/ubuntu-18.04.5-desktop-amd64.iso -m 1024" # GARAND: Addition to boot 
+        args += f" -drive file=fat:rw:/home/user/UEFI_workspace/support/chipsec_drive/ -m 1024" # GARAND: Addition to boot 
 
         if (self.env.GetValue("QEMU_HEADLESS").upper() == "TRUE"):
             args += " -display none"  # no graphics
