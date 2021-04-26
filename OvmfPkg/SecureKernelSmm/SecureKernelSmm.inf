@@ -30,11 +30,15 @@
   SmmServicesTableLib
   DebugLib
   UefiLib
+  MmServicesTableLib
 
 [Protocols]
   gEfiSmmBase2ProtocolGuid        ## CONSUMES
   gEfiSmmAccess2ProtocolGuid      ## CONSUMES
-  gEfiSmmSwDispatch2ProtocolGuid  ## CONSUMES
+  #gEfiSmmSwDispatch2ProtocolGuid  ## CONSUMES HARDWARE ONLY
+
+  gEfiMmCpuIoProtocolGuid         ## CONSUMES QEMU ONLY
+
 
 [Depex]
-  TRUE
+  gEfiMmCpuIoProtocolGuid
