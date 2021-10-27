@@ -23,9 +23,14 @@
 #include <Library/MemoryAllocationLib.h>
 
 #define VIRTIO_MMIO_DEVICE_SIGNATURE  SIGNATURE_32 ('V', 'M', 'I', 'O')
+#define VIRTIO_MMIO_DEVICE_VERSION_0_95  1
+#define VIRTIO_MMIO_DEVICE_VERSION_1_00  2
+
 
 typedef struct {
   UINT32                 Signature;
+  UINT32                 Version;
+  UINT16                 QueueNum;
   VIRTIO_DEVICE_PROTOCOL VirtioDevice;
   PHYSICAL_ADDRESS       BaseAddress;
 } VIRTIO_MMIO_DEVICE;
@@ -107,6 +112,7 @@ VirtioMmioSetQueueSel (
   );
 
 EFI_STATUS
+EFIAPI
 VirtioMmioSetQueueAddress (
   IN VIRTIO_DEVICE_PROTOCOL  *This,
   IN VRING                   *Ring,

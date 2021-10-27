@@ -338,8 +338,18 @@ PlatformBootManagerBeforeConsole (
   //
   EfiEventGroupSignal (&gEfiEndOfDxeEventGroupGuid);
 
+  // We need to connect all trusted consoles for TCG PP. Here we treat all
+  // consoles in OVMF to be trusted consoles.
+  PlatformInitializeConsole (gPlatformConsole);
+
+  //
+  // Process TPM PPI request
+  //
+  Tcg2PhysicalPresenceLibProcessRequest (NULL);
+
   //
   // Prevent further changes to LockBoxes or SMRAM.
+  // Any TPM 2 Physical Presence Interface opcode must be handled before.
   //
   Handle = NULL;
   Status = gBS->InstallProtocolInterface (&Handle,
@@ -352,8 +362,6 @@ PlatformBootManagerBeforeConsole (
   // installation.
   //
   EfiBootManagerDispatchDeferredImages ();
-
-  PlatformInitializeConsole (gPlatformConsole);
 
   Status = gRT->SetVariable (
                   EFI_TIME_OUT_VARIABLE_NAME,
@@ -1311,9 +1319,9 @@ PlatformBootManagerAfterConsole (
   PciAcpiInitialization ();
 
   //
-  // Process TPM PPI request
+  // Process QEMU's -kernel command line option
   //
-  Tcg2PhysicalPresenceLibProcessRequest (NULL);
+  TryRunningQemuKernel ();
 
   //
   // Perform some platform specific connect sequence

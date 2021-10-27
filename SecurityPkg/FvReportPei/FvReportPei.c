@@ -67,7 +67,7 @@ InstallPreHashFvPpi (
   HASH_INFO                                         *HashInfo;
 
   PpiSize = sizeof (EDKII_PEI_FIRMWARE_VOLUME_INFO_PREHASHED_FV_PPI)
-            + sizeof (sizeof (HASH_INFO))
+            + sizeof (HASH_INFO)
             + HashSize;
 
   PreHashedFvPpi = AllocatePool (PpiSize);
@@ -343,6 +343,8 @@ CheckStoredHashFv (
     Status = VerifyHashedFv (HashInfo, StoredHashFvPpi->FvInfo,
                              StoredHashFvPpi->FvNumber, BootMode);
     if (!EFI_ERROR (Status)) {
+
+      DEBUG ((DEBUG_INFO, "OBB verification passed (%r)\r\n", Status));
 
       //
       // Report the FVs to PEI core and/or DXE core.

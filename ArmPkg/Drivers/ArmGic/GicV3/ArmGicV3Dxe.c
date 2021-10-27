@@ -115,7 +115,7 @@ GicV3GetInterruptSourceState (
   @param This     Instance pointer for this protocol
   @param Source   Hardware source of the interrupt
 
-  @retval EFI_SUCCESS       Source interrupt EOI'ed.
+  @retval EFI_SUCCESS       Source interrupt ended successfully.
   @retval EFI_DEVICE_ERROR  Hardware could not be programmed.
 
 **/
@@ -342,10 +342,6 @@ GicV3ExitBootServicesEvent (
   // Acknowledge all pending interrupts
   for (Index = 0; Index < mGicNumInterrupts; Index++) {
     GicV3DisableInterruptSource (&gHardwareInterruptV3Protocol, Index);
-  }
-
-  for (Index = 0; Index < mGicNumInterrupts; Index++) {
-    GicV3EndOfInterrupt (&gHardwareInterruptV3Protocol, Index);
   }
 
   // Disable Gic Interface

@@ -315,12 +315,12 @@ ReadSaveStateRegisterByIndex (
     }
 
     //
-    // Write lower 32-bits of return buffer
+    // Write at most 4 of the lower bytes of the return buffer
     //
     CopyMem(Buffer, (UINT8 *)CpuSaveState + mSmmCpuWidthOffset[RegisterIndex].Offset64Lo, MIN(4, Width));
-    if (Width >= 4) {
+    if (Width > 4) {
       //
-      // Write upper 32-bits of return buffer
+      // Write at most 4 of the upper bytes of the return buffer
       //
       CopyMem((UINT8 *)Buffer + 4, (UINT8 *)CpuSaveState + mSmmCpuWidthOffset[RegisterIndex].Offset64Hi, Width - 4);
     }
@@ -343,7 +343,7 @@ ReadSaveStateRegisterByIndex (
 
   @retval EFI_SUCCESS           The register was read from Save State.
   @retval EFI_NOT_FOUND         The register is not defined for the Save State of Processor.
-  @retval EFI_INVALID_PARAMETER  This or Buffer is NULL.
+  @retval EFI_INVALID_PARAMETER Buffer is NULL, or Width does not meet requirement per Register type.
 
 **/
 EFI_STATUS
@@ -416,6 +416,13 @@ ReadSaveStateRegister (
     //
     if (mSmmCpuIoWidth[IoMisc.Bits.Length].Width == 0 || mSmmCpuIoType[IoMisc.Bits.Type] == 0) {
       return EFI_NOT_FOUND;
+    }
+
+    //
+    // Make sure the incoming buffer is large enough to hold IoInfo before accessing
+    //
+    if (Width < sizeof (EFI_SMM_SAVE_STATE_IO_INFO)) {
+      return EFI_INVALID_PARAMETER;
     }
 
     //
@@ -539,12 +546,12 @@ WriteSaveStateRegister (
     }
 
     //
-    // Write lower 32-bits of SMM State register
+    // Write at most 4 of the lower bytes of SMM State register
     //
     CopyMem((UINT8 *)CpuSaveState + mSmmCpuWidthOffset[RegisterIndex].Offset64Lo, Buffer, MIN (4, Width));
-    if (Width >= 4) {
+    if (Width > 4) {
       //
-      // Write upper 32-bits of SMM State register
+      // Write at most 4 of the upper bytes of SMM State register
       //
       CopyMem((UINT8 *)CpuSaveState + mSmmCpuWidthOffset[RegisterIndex].Offset64Hi, (UINT8 *)Buffer + 4, Width - 4);
     }

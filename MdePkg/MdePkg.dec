@@ -267,6 +267,11 @@
   #
   RegisterFilterLib|Include/Library/RegisterFilterLib.h
 
+[LibraryClasses.IA32, LibraryClasses.X64, LibraryClasses.AARCH64]
+  ##  @libraryclass  Provides services to generate random number.
+  #
+  RngLib|Include/Library/RngLib.h
+
 [LibraryClasses.IA32, LibraryClasses.X64]
   ##  @libraryclass  Abstracts both S/W SMI generation and detection.
   ##
@@ -287,10 +292,6 @@
   ##  @libraryclass  Provides services to enable/disable periodic SMI handlers.
   #
   SmmPeriodicSmiLib|Include/Library/SmmPeriodicSmiLib.h
-
-  ##  @libraryclass  Provides services to generate random number.
-  #
-  RngLib|Include/Library/RngLib.h
 
   ##  @libraryclass  Provides services to log the SMI handler registration.
   SmiHandlerProfileLib|Include/Library/SmiHandlerProfileLib.h
@@ -817,6 +818,11 @@
   #
   gTianoCustomDecompressGuid     = { 0xA31280AD, 0x481E, 0x41B6, { 0x95, 0xE8, 0x12, 0x7F, 0x4C, 0x98, 0x47, 0x79 }}
 
+  #
+  # GUID used to provide initrd to linux via LoadFile2 protocol
+  #
+  gLinuxEfiInitrdMediaGuid       = {0x5568e427, 0x68fc, 0x4f3d, {0xac, 0x74, 0xca, 0x55, 0x52, 0x31, 0xcc, 0x68}}
+
 [Guids.IA32, Guids.X64]
   ## Include/Guid/Cper.h
   gEfiIa32X64ErrorTypeCacheCheckGuid = { 0xA55701F5, 0xE3EF, 0x43de, { 0xAC, 0x72, 0x24, 0x9B, 0x57, 0x3F, 0xAD, 0x2C }}
@@ -981,6 +987,12 @@
 
   ## Include/Ppi/MmControl.h
   gEfiPeiMmControlPpiGuid         =  { 0x61c68702, 0x4d7e, 0x4f43, { 0x8d, 0xef, 0xa7, 0x43, 0x5, 0xce, 0x74, 0xc5 }}
+
+  ## Include/Ppi/MmConfiguration.h
+  gEfiPeiMmConfigurationPpi       =  { 0xc109319, 0xc149, 0x450e, { 0xa3, 0xe3, 0xb9, 0xba, 0xdd, 0x9d, 0xc3, 0xa4 } }
+
+  ## Include/Ppi/MmCommunication.h
+  gEfiPeiMmCommunicationPpiGuid   =  { 0xae933e1c, 0xcc47, 0x4e38, { 0x8f, 0xe, 0xe2, 0xf6, 0x1d, 0x26, 0x5, 0xdf } }
 
   #
   # PPIs defined in PI 1.7.
@@ -2265,10 +2277,6 @@
   # @ValidList  0x80000001 | 8, 16, 32
   gEfiMdePkgTokenSpaceGuid.PcdPort80DataWidth|8|UINT8|0x0000002d
 
-  ## This value is used to configure X86 Processor FSB clock.
-  # @Prompt FSB Clock.
-  gEfiMdePkgTokenSpaceGuid.PcdFSBClock|200000000|UINT32|0x0000000c
-
   ## The maximum printable number of characters. UefLib functions: AsciiPrint(), AsciiErrorPrint(),
   #  PrintXY(), AsciiPrintXY(), Print(), ErrorPrint() base on this PCD value to print characters.
   # @Prompt Maximum Printable Number of Characters.
@@ -2296,6 +2304,18 @@
   ## This value is used to set the base address of PCI express hierarchy.
   # @Prompt PCI Express Base Address.
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress|0xE0000000|UINT64|0x0000000a
+
+  ## This value is used to set the base address of PCI MMIO window that provides I/O access.
+  # @Prompt PCI I/O Memory Map Window Base Address.
+  gEfiMdePkgTokenSpaceGuid.PcdPciIoTranslation|0x0|UINT64|0x00000040
+
+  ## This value is used for the 32-bit PCI memory map I/O base address translation.
+  # @Prompt 32-bit PCI Memory Map I/O Base Address translation.
+  gEfiMdePkgTokenSpaceGuid.PcdPciMmio32Translation|0x0|UINT64|0x00000041
+
+  ## This value is used for the 64-bit PCI memory map I/O base address translation.
+  # @Prompt 64-bit PCI Memory Map I/O Base Address translation.
+  gEfiMdePkgTokenSpaceGuid.PcdPciMmio64Translation|0x0|UINT64|0x00000042
 
   ## This value is used to set the size of PCI express hierarchy. The default is 256 MB.
   # @Prompt PCI Express Base Size.
@@ -2371,6 +2391,10 @@
   #  The value of 0xFFFF then firmware will wait for user input before booting.
   # @Prompt Boot Timeout (s)
   gEfiMdePkgTokenSpaceGuid.PcdPlatformBootTimeOut|0xffff|UINT16|0x0000002c
+
+  ## This value is used to configure X86 Processor FSB clock.
+  # @Prompt FSB Clock.
+  gEfiMdePkgTokenSpaceGuid.PcdFSBClock|200000000|UINT32|0x0000000c
 
 [UserExtensions.TianoCore."ExtraFiles"]
   MdePkgExtra.uni

@@ -19,6 +19,32 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/CpuCacheInfoLib.h>
 
+typedef union {
+  struct {
+    //
+    // Type of the cache that this package's this type of logical processor corresponds to.
+    // Value = CPUID.04h:EAX[04:00]
+    //
+    UINT32        CacheType : 5;
+    //
+    // Level of the cache that this package's this type of logical processor corresponds to.
+    // Value = CPUID.04h:EAX[07:05]
+    //
+    UINT32        CacheLevel : 3;
+    //
+    // Core type of logical processor.
+    // Value = CPUID.1Ah:EAX[31:24]
+    //
+    UINT32        CoreType : 8;
+    UINT32        Reserved : 16;
+    //
+    // Package number.
+    //
+    UINT32        Package;
+  } Bits;
+  UINT64        Uint64;
+} CPU_CACHE_INFO_COMPARATOR;
+
 typedef struct {
   //
   // Package ID, the information comes from
