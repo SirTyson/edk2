@@ -10,11 +10,11 @@
 
 #include <Uefi.h>
 #include <Protocol/Smbios.h>
+#include <IndustryStandard/ArmCache.h>
 #include <IndustryStandard/ArmStdSmc.h>
 #include <IndustryStandard/SmBios.h>
 #include <Library/ArmLib.h>
 #include <Library/ArmSmcLib.h>
-#include <Library/ArmLib/ArmLibPrivate.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
@@ -219,7 +219,7 @@ ConfigureCacheArchitectureInformation (
     CacheSize32 = CacheSize16;
   } else if ((CacheSize64 / 64) < MAX_INT16) {
     CacheSize16 = (1 << 15) | (CacheSize64 / 64);
-    CacheSize32 = CacheSize16;
+    CacheSize32 = (1 << 31) | (CacheSize64 / 64);
   } else {
     if ((CacheSize64 / 1024) <= 2047) {
       CacheSize32 = CacheSize64;

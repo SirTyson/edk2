@@ -1,8 +1,8 @@
 ## @file
 # Create makefile for MS nmake and GNU make
 #
-# Copyright (c) 2007 - 2020, Intel Corporation. All rights reserved.<BR>
-# Copyright (c) 2020, ARM Limited. All rights reserved.<BR>
+# Copyright (c) 2007 - 2021, Intel Corporation. All rights reserved.<BR>
+# Copyright (c) 2020 - 2021, Arm Limited. All rights reserved.<BR>
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 #
 
@@ -177,11 +177,11 @@ class BuildFile(object):
 
         MakePath = AutoGenObject.BuildOption.get('MAKE', {}).get('PATH')
         if not MakePath:
-            self._FileType = ""
-        elif "nmake" in MakePath:
+            MakePath = AutoGenObject.ToolDefinition.get('MAKE', {}).get('PATH')
+        if "nmake" in MakePath:
             self._FileType = NMAKE_FILETYPE
         else:
-            self._FileType = "gmake"
+            self._FileType = GMAKE_FILETYPE
 
         if sys.platform == "win32":
             self._Platform = WIN32_PLATFORM
@@ -519,13 +519,15 @@ cleanlib:
         # tools definitions
         ToolsDef = []
         IncPrefix = self._INC_FLAG_[MyAgo.ToolChainFamily]
-        for Tool in MyAgo.BuildOption:
-            for Attr in MyAgo.BuildOption[Tool]:
+        for Tool in sorted(list(MyAgo.BuildOption)):
+            Appended = False
+            for Attr in sorted(list(MyAgo.BuildOption[Tool])):
                 Value = MyAgo.BuildOption[Tool][Attr]
                 if Attr == "FAMILY":
                     continue
                 elif Attr == "PATH":
                     ToolsDef.append("%s = %s" % (Tool, Value))
+                    Appended = True
                 else:
                     # Don't generate MAKE_FLAGS in makefile. It's put in environment variable.
                     if Tool == "MAKE":
@@ -542,7 +544,9 @@ cleanlib:
                                 Value = ' '.join(ValueList)
 
                     ToolsDef.append("%s_%s = %s" % (Tool, Attr, Value))
-            ToolsDef.append("")
+                    Appended = True
+            if Appended:
+                ToolsDef.append("")
 
         # generate the Response file and Response flag
         RespDict = self.CommandExceedLimit()

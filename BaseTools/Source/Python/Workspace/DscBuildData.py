@@ -19,8 +19,8 @@ from Common.Misc import *
 from types import *
 from Common.Expression import *
 from CommonDataClass.CommonClass import SkuInfoClass
-from Common.TargetTxtClassObject import TargetTxtDict
-from Common.ToolDefClassObject import ToolDefDict
+from Common.TargetTxtClassObject import TargetTxtDict,gDefaultTargetTxtFile
+from Common.ToolDefClassObject import ToolDefDict,gDefaultToolsDefFile
 from .MetaDataTable import *
 from .MetaFileTable import *
 from .MetaFileParser import *
@@ -179,20 +179,6 @@ def GetDependencyList(FileStack, SearchPathList):
     return DependencyList
 
 class DscBuildData(PlatformBuildClassObject):
-    # dict used to convert PCD type in database to string used by build tool
-    _PCD_TYPE_STRING_ = {
-        MODEL_PCD_FIXED_AT_BUILD        :   TAB_PCDS_FIXED_AT_BUILD,
-        MODEL_PCD_PATCHABLE_IN_MODULE   :   TAB_PCDS_PATCHABLE_IN_MODULE,
-        MODEL_PCD_FEATURE_FLAG          :   TAB_PCDS_FEATURE_FLAG,
-        MODEL_PCD_DYNAMIC               :   TAB_PCDS_DYNAMIC,
-        MODEL_PCD_DYNAMIC_DEFAULT       :   TAB_PCDS_DYNAMIC,
-        MODEL_PCD_DYNAMIC_HII           :   TAB_PCDS_DYNAMIC_HII,
-        MODEL_PCD_DYNAMIC_VPD           :   TAB_PCDS_DYNAMIC_VPD,
-        MODEL_PCD_DYNAMIC_EX            :   TAB_PCDS_DYNAMIC_EX,
-        MODEL_PCD_DYNAMIC_EX_DEFAULT    :   TAB_PCDS_DYNAMIC_EX,
-        MODEL_PCD_DYNAMIC_EX_HII        :   TAB_PCDS_DYNAMIC_EX_HII,
-        MODEL_PCD_DYNAMIC_EX_VPD        :   TAB_PCDS_DYNAMIC_EX_VPD,
-    }
 
     # dict used to convert part of [Defines] to members of DscBuildData directly
     _PROPERTY_ = {
@@ -242,7 +228,7 @@ class DscBuildData(PlatformBuildClassObject):
         self.WorkspaceDir = os.getenv("WORKSPACE") if os.getenv("WORKSPACE") else ""
         self.DefaultStores = None
         self.SkuIdMgr = SkuClass(self.SkuName, self.SkuIds)
-
+        self.UpdatePcdTypeDict()
     @property
     def OutputPath(self):
         if os.getenv("WORKSPACE"):
@@ -411,6 +397,9 @@ class DscBuildData(PlatformBuildClassObject):
                 except:
                     EdkLogger.error("build", FORMAT_INVALID, "Invalid GUID format for VPD_TOOL_GUID", File=self.MetaFile)
                 self._VpdToolGuid = Record[2]
+            elif Name == TAB_DSC_DEFINES_PCD_DYNAMIC_AS_DYNAMICEX:
+                if TAB_DSC_DEFINES_PCD_DYNAMIC_AS_DYNAMICEX not in gCommandLineDefines:
+                    gCommandLineDefines[TAB_DSC_DEFINES_PCD_DYNAMIC_AS_DYNAMICEX] = Record[2].strip()
             elif Name in self:
                 self[Name] = Record[2]
         # set _Header to non-None in order to avoid database re-querying
@@ -3537,12 +3526,11 @@ class DscBuildData(PlatformBuildClassObject):
         self._ToolChainFamily = TAB_COMPILER_MSFT
         TargetObj = TargetTxtDict()
         TargetTxt = TargetObj.Target
-        BuildConfigurationFile = os.path.normpath(os.path.join(GlobalData.gConfDirectory, "target.txt"))
+        BuildConfigurationFile = os.path.normpath(os.path.join(GlobalData.gConfDirectory, gDefaultTargetTxtFile))
         if os.path.isfile(BuildConfigurationFile) == True:
             ToolDefinitionFile = TargetTxt.TargetTxtDictionary[DataType.TAB_TAT_DEFINES_TOOL_CHAIN_CONF]
             if ToolDefinitionFile == '':
-                ToolDefinitionFile = "tools_def.txt"
-                ToolDefinitionFile = os.path.normpath(mws.join(self.WorkspaceDir, 'Conf', ToolDefinitionFile))
+                ToolDefinitionFile = os.path.normpath(mws.join(self.WorkspaceDir, 'Conf', gDefaultToolsDefFile))
             if os.path.isfile(ToolDefinitionFile) == True:
                 ToolDefObj = ToolDefDict((os.path.join(os.getenv("WORKSPACE"), "Conf")))
                 ToolDefinition = ToolDefObj.ToolDef.ToolsDefTxtDatabase

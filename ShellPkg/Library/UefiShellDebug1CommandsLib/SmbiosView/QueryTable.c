@@ -2,7 +2,7 @@
   Build a table, each item is (Key, Info) pair.
   And give a interface of query a string out of a table.
 
-  Copyright (c) 2005 - 2019, Intel Corporation. All rights reserved.<BR>
+  Copyright (c) 2005 - 2021, Intel Corporation. All rights reserved.<BR>
   (C) Copyright 2016-2019 Hewlett Packard Enterprise Development LP<BR>
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -188,19 +188,19 @@ TABLE_ITEM  SystemEnclosureTypeTable[] = {
   },
   {
     0x10,
-    L"  Main Server Chassis"
+    L"  Lunch Box"
   },
   {
     0x11,
-    L"  Expansion Chassis"
+    L"  Main Server Chassis"
   },
   {
     0x12,
-    L"  SubChassis"
+    L"  Expansion Chassis"
   },
   {
     0x13,
-    L"  Sub Notebook"
+    L"  SubChassis"
   },
   {
     0x14,
@@ -589,6 +589,18 @@ TABLE_ITEM  ProcessorUpgradeTable[] = {
   {
     0x3C,
     L"Socket BGA1528"
+  },
+  {
+    0x3D,
+    L"Socket LGA4189"
+  },
+  {
+    0x3E,
+    L"Socket LGA1200"
+  },
+  {
+    0x3F,
+    L"Socket LGA4677"
   }
 };
 
@@ -2300,8 +2312,8 @@ TABLE_ITEM  PMALocationTable[] = {
     L"  PC-98/Local bus add-on card"
   },
   {
-    MemoryArrayLocationCXLFlexbus10AddonCard,
-    L"  CXL Flexbus 1.0 add-on card"
+    MemoryArrayLocationCXLAddonCard,
+    L"  CXL add-on card"
   }
 };
 
@@ -2650,8 +2662,8 @@ TABLE_ITEM  MemoryDeviceMemoryTechnologyTable[] = {
     L" NVDIMM-P"
   },
   {
-    MemoryTechnologyIntelPersistentMemory,
-    L" Intel Optane DC Persistent Memory"
+    MemoryTechnologyIntelOptanePersistentMemory,
+    L" Intel Optane Persistent Memory"
   }
 };
 

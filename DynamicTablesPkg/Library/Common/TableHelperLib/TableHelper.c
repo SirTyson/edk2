@@ -1,7 +1,7 @@
 /** @file
   Table Helper
 
-  Copyright (c) 2017 - 2020, Arm Limited. All rights reserved.<BR>
+  Copyright (c) 2017 - 2021, Arm Limited. All rights reserved.<BR>
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 **/
@@ -122,11 +122,13 @@ AddAcpiHeader (
   ASSERT (CfgMgrProtocol != NULL);
   ASSERT (Generator != NULL);
   ASSERT (AcpiHeader != NULL);
+  ASSERT (AcpiTableInfo != NULL);
   ASSERT (Length >= sizeof (EFI_ACPI_DESCRIPTION_HEADER));
 
   if ((CfgMgrProtocol == NULL) ||
       (Generator == NULL) ||
       (AcpiHeader == NULL) ||
+      (AcpiTableInfo == NULL) ||
       (Length < sizeof (EFI_ACPI_DESCRIPTION_HEADER))
     ) {
     return EFI_INVALID_PARAMETER;
@@ -180,6 +182,93 @@ AddAcpiHeader (
   AcpiHeader->CreatorRevision = Generator->CreatorRevision;
 
 error_handler:
+  return Status;
+}
+
+/** Build a RootNode containing SSDT ACPI header information using the AmlLib.
+
+  The function utilizes the ACPI table Generator and the Configuration
+  Manager protocol to obtain any information required for constructing the
+  header. It then creates a RootNode. The SSDT ACPI header is part of the
+  RootNode.
+
+  This is essentially a wrapper around AmlCodeGenDefinitionBlock ()
+  from the AmlLib.
+
+  @param [in]   CfgMgrProtocol Pointer to the Configuration Manager
+                               protocol interface.
+  @param [in]   Generator      Pointer to the ACPI table Generator.
+  @param [in]   AcpiTableInfo  Pointer to the ACPI table info structure.
+  @param [out]  RootNode       If success, contains the created RootNode.
+                               The SSDT ACPI header is part of the RootNode.
+
+  @retval EFI_SUCCESS           Success.
+  @retval EFI_INVALID_PARAMETER A parameter is invalid.
+  @retval EFI_NOT_FOUND         The required object information is not found.
+  @retval EFI_BAD_BUFFER_SIZE   The size returned by the Configuration
+                                Manager is less than the Object size for the
+                                requested object.
+**/
+EFI_STATUS
+EFIAPI
+AddSsdtAcpiHeader (
+  IN      CONST EDKII_CONFIGURATION_MANAGER_PROTOCOL  * CONST CfgMgrProtocol,
+  IN      CONST ACPI_TABLE_GENERATOR                  * CONST Generator,
+  IN      CONST CM_STD_OBJ_ACPI_TABLE_INFO            * CONST AcpiTableInfo,
+      OUT       AML_ROOT_NODE_HANDLE                  *       RootNode
+  )
+{
+  EFI_STATUS                               Status;
+  UINT64                                   OemTableId;
+  UINT32                                   OemRevision;
+  CM_STD_OBJ_CONFIGURATION_MANAGER_INFO  * CfgMfrInfo;
+
+  ASSERT (CfgMgrProtocol != NULL);
+  ASSERT (Generator != NULL);
+  ASSERT (AcpiTableInfo != NULL);
+
+  if ((CfgMgrProtocol == NULL)  ||
+      (Generator == NULL)       ||
+      (AcpiTableInfo == NULL)) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  Status = GetCgfMgrInfo (CfgMgrProtocol, &CfgMfrInfo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((
+      DEBUG_ERROR,
+      "ERROR: Failed to get Configuration Manager info. Status = %r\n",
+      Status
+      ));
+    return Status;
+  }
+
+  if (AcpiTableInfo->OemTableId != 0) {
+    OemTableId = AcpiTableInfo->OemTableId;
+  } else {
+    OemTableId = SIGNATURE_32 (
+                   CfgMfrInfo->OemId[0],
+                   CfgMfrInfo->OemId[1],
+                   CfgMfrInfo->OemId[2],
+                   CfgMfrInfo->OemId[3]
+                   ) |
+                 ((UINT64)Generator->AcpiTableSignature << 32);
+  }
+
+  if (AcpiTableInfo->OemRevision != 0) {
+    OemRevision = AcpiTableInfo->OemRevision;
+  } else {
+    OemRevision = CfgMfrInfo->Revision;
+  }
+
+  Status = AmlCodeGenDefinitionBlock (
+             "SSDT",
+             (CONST CHAR8*)&CfgMfrInfo->OemId,
+             (CONST CHAR8*)&OemTableId,
+             OemRevision,
+             RootNode
+             );
+  ASSERT_EFI_ERROR (Status);
   return Status;
 }
 
@@ -244,29 +333,4 @@ FindDuplicateValue (
     }
   }
   return FALSE;
-}
-
-/** Convert a hex number to its ASCII code.
-
- @param [in]  x   Hex number to convert.
-                  Must be 0 <= x < 16.
-
- @return The ASCII code corresponding to x.
-**/
-UINT8
-EFIAPI
-AsciiFromHex (
-  IN  UINT8   x
-  )
-{
-  if (x < 10) {
-    return (UINT8)(x + '0');
-  }
-
-  if (x < 16) {
-    return (UINT8)(x - 10 + 'A');
-  }
-
-  ASSERT (FALSE);
-  return (UINT8)0;
 }

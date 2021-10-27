@@ -1,7 +1,7 @@
 /** @file
   SSDT CMN-600 AML Table Generator.
 
-  Copyright (c) 2020, Arm Limited. All rights reserved.<BR>
+  Copyright (c) 2020 - 2021, Arm Limited. All rights reserved.<BR>
 
   SPDX-License-Identifier: BSD-2-Clause-Patent
 
@@ -10,21 +10,19 @@
   - Generic ACPI for Arm Components 1.0 Platform Design Document
 **/
 
-#include <IndustryStandard/DebugPort2Table.h>
 #include <Library/AcpiLib.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
 #include <Library/MemoryAllocationLib.h>
-#include <Library/UefiBootServicesTableLib.h>
 #include <Protocol/AcpiTable.h>
 
 // Module specific include files.
 #include <AcpiTableGenerator.h>
 #include <ConfigurationManagerObject.h>
 #include <ConfigurationManagerHelper.h>
+#include <Library/AcpiHelperLib.h>
 #include <Library/AmlLib/AmlLib.h>
-#include <Library/TableHelperLib.h>
 #include <Protocol/ConfigurationManagerProtocol.h>
 #include "SsdtCmn600Generator.h"
 
@@ -286,7 +284,7 @@ FixupCmn600Info (
 
   // Get the first Rd node in the "_CRS" object.
   // This is the PERIPHBASE node.
-  Status = AmlNameOpCrsGetFirstRdNode (NameOpCrsNode, &CmnPeriphBaseRdNode);
+  Status = AmlNameOpGetFirstRdNode (NameOpCrsNode, &CmnPeriphBaseRdNode);
   if (EFI_ERROR (Status)) {
     goto error_handler;
   }
@@ -309,7 +307,7 @@ FixupCmn600Info (
   // Get the QWord node corresponding to the ROOTNODEBASE.
   // It is the second Resource Data element in the BufferNode's
   // variable list of arguments.
-  Status = AmlNameOpCrsGetNextRdNode (
+  Status = AmlNameOpGetNextRdNode (
              CmnPeriphBaseRdNode,
              &CmnRootNodeBaseRdNode
              );
@@ -338,8 +336,8 @@ FixupCmn600Info (
   // Resource Data nodes.
   for (Index = 0; Index < Cmn600Info->DtcCount; Index++) {
     DtcInt = &Cmn600Info->DtcInterrupt[Index];
-    Status = AmlCodeGenCrsAddRdInterrupt (
-               NameOpCrsNode,
+
+    Status = AmlCodeGenRdInterrupt (
                ((DtcInt->Flags &
                  EFI_ACPI_EXTENDED_INTERRUPT_FLAG_PRODUCER_CONSUMER_MASK) != 0),
                ((DtcInt->Flags &
@@ -349,7 +347,9 @@ FixupCmn600Info (
                ((DtcInt->Flags &
                  EFI_ACPI_EXTENDED_INTERRUPT_FLAG_SHARABLE_MASK) != 0),
                (UINT32*)&DtcInt->Interrupt,
-               1
+               1,
+               NameOpCrsNode,
+               NULL
                );
     if (EFI_ERROR (Status)) {
       goto error_handler;
@@ -511,7 +511,7 @@ BuildSsdtCmn600TableEx (
   UINT64                            Index;
   CM_ARM_CMN_600_INFO             * Cmn600Info;
   UINT32                            Cmn600Count;
-  CHAR8                             NewName[5];
+  CHAR8                             NewName[AML_NAME_SEG_SIZE + 1];
   EFI_ACPI_DESCRIPTION_HEADER    ** TableList;
 
   ASSERT (This != NULL);
