@@ -220,8 +220,11 @@ class PlatformBuilder( UefiBuilder, BuildSettingsManager):
         args += " -global isa-debugcon.iobase=0x402"                        # debug messages out thru virtual io port
         args += " -net none"                                                # turn off network
         #args += f" -drive file=fat:rw:{VirtualDrive},format=raw,media=disk" # Mount disk with startup.nsh
-        #args += " -cdrom /home/user/UEFI_workspace/ubuntu-18.04.5-desktop-amd64.iso -m 1024" # GARAND: Addition to boot 
-        args += f" -drive file=fat:rw:/home/user/UEFI_workspace/support/chipsec_drive/ -m 1024" # GARAND: Addition to boot 
+        #args += " -cdrom /home/gttyson/edk2/VM/ubuntu-20.04.3-desktop-amd64.iso" # GARAND: Addition to boot
+        #args += f" -drive file=fat:rw:/home/user/UEFI_workspace/support/chipsec_drive/ -m 1024" # GARAND: Addition to boot
+
+        args += " -drive file=/home/gttyson/edk2/VM/vm.disk,if=virtio,format=raw" # Persistent Unbuntu VM disk
+        args += " -enable-kvm -m 4G"
 
         if (self.env.GetValue("QEMU_HEADLESS").upper() == "TRUE"):
             args += " -display none"  # no graphics

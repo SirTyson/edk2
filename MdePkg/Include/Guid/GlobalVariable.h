@@ -183,4 +183,9 @@ extern EFI_GUID gEfiGlobalVariableGuid;
 ///
 #define EFI_VENDOR_KEYS_VARIABLE_NAME               L"VendorKeys"
 
+///
+/// Shared memory buffer between SMM and os
+///
+#define SECURE_KERNEL_SHARED_BUFFER_VARIABLE_NAME   L"SecureKernelSharedBuffer"
+
 #endif

@@ -12,4 +12,5 @@ lib64
 mu_nasm.2.15.5/
 pyvenv.cfg
 Support/
-VM/
+VM/ubuntu-20.04.3-desktop-amd64.iso
+VM/vm.disk
