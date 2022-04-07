@@ -1,6 +1,6 @@
 /** @file
 
-DXE/SMM Driver that secure kernel will run in.
+DXE/SMM Driver that facilitates OS vector operation.
 
 **/
 
@@ -43,14 +43,24 @@ DXE/SMM Driver that secure kernel will run in.
 #define KERNEL_INIT_SMI_VAL 0xCC
 
 //
+// Size of memory for Secure OS in bytes
+//
+#define SECURE_OS_MEMORY_SIZE 1073741824 // 1 GB
+
+//
+// Size of Shared Memory region in bytes
+//
+#define SHARED_MEMORY_SIZE 4096
+
+//
+// Memory type code memory region reserved for secure kernel
+//
+#define SECURE_OS_MEMORY_TYPE_CODE 0x7FFFFFFA
+
+//
 // Main SMI/MMI Handler registration
 //
 STATIC EFI_HANDLE mDispatchHandle;
-
-//
-// Name of UEFI Variable for shared memory space
-//
-//STATIC CHAR16 mSharedMemoryVariableName[] = L"SmmSharedMemory";
 
 //
 // Buffer for reading/writting to shared memory buffer
@@ -58,14 +68,14 @@ STATIC EFI_HANDLE mDispatchHandle;
 STATIC VOID *mSharedMemoryBuffer;
 
 //
+// Buffer for reserving runtime memory for secure kernel
+//
+STATIC EFI_PHYSICAL_ADDRESS mPrimaryOsRuntimeMemory;
+
+//
 // Protocol for Smm Variable stuff
 //
 STATIC EFI_SMM_VARIABLE_PROTOCOL *mSmmVariable;
-
-//
-// Size of Shared Memory region
-//
-#define SHARED_MEMORY_SIZE 4096
 
 #ifdef QEMU_BUILD
 
@@ -102,7 +112,6 @@ KernelInitHandler (
   for (int i = 0; i < 20; ++i) {
     ((CHAR8 *)mSharedMemoryBuffer)[i] = str[i];
   }
-
 
   Status = mSmmVariable->SmmSetVariable (
                   SECURE_KERNEL_SHARED_BUFFER_VARIABLE_NAME,
@@ -164,7 +173,7 @@ MainMmiHandler (
     //
     // We couldn't even determine if the MMI was for us or not.
     //
-    return EFI_SUCCESS; // TODO: Better error
+    return Status;
   }
 
   switch (ApmControl) {
@@ -188,6 +197,8 @@ SecureKernelInit (
   EFI_SMM_BASE2_PROTOCOL                    *SmmBase;
   BOOLEAN                                   InSmram;
   EFI_BOOT_SERVICES                         *BootServices;
+  UINTN                                     Pages;
+  UINT64                                    dummyQWORD;
 
 #ifndef QEMU_BUILD
   EFI_SMM_SW_DISPATCH2_PROTOCOL             *SwDispatch;
@@ -207,7 +218,7 @@ SecureKernelInit (
     DEBUG ((DEBUG_INFO, "SecureKernelSmm: SombraOS init in SMRAM!\n"));
   } else {
     DEBUG ((DEBUG_ERROR, "SecureKernelSmm: SombraOS init not in SMRAM, aborting.\n"));
-    return Status;
+    return EFI_ERROR_CODE;
   }
 
   Status = gSmst->SmmLocateProtocol (
@@ -217,6 +228,7 @@ SecureKernelInit (
                 );
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Failed to locate SMM Variable service.\n"));
+    return EFI_ERROR_CODE;
   } else {
     DEBUG ((DEBUG_INFO, "SecureKernelSmm: Sucessfully located SMM Variable service.\n"));
   }
@@ -227,7 +239,7 @@ SecureKernelInit (
                     NULL /* Registration */, (VOID **)&mMmCpuIo);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "%a: locate MmCpuIo: %r\n", __FUNCTION__, Status));
-    return EFI_SUCCESS;
+    return Status;
   }
 
   //
@@ -241,6 +253,7 @@ SecureKernelInit (
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SecureKernelSmm: SombraOS failed to register software MMI handler.\n"));
+    return Status;
   } else {
     DEBUG ((DEBUG_INFO, "SecureKernelSmm: SombraOS successfully registered software MMI handler.\n"));
   }
@@ -249,6 +262,29 @@ SecureKernelInit (
   // Allocate buffer for writting to variable
   //
   mSharedMemoryBuffer = AllocateRuntimeZeroPool (SHARED_MEMORY_SIZE);
+
+  Pages = EFI_SIZE_TO_PAGES (SECURE_OS_MEMORY_SIZE);
+  Status = gBS->AllocatePages (
+    AllocateAnyPages,
+    SECURE_OS_MEMORY_TYPE_CODE,
+    Pages,
+    &mPrimaryOsRuntimeMemory
+    );
+
+  if (EFI_ERROR (Status))
+  {
+    if (Status == EFI_OUT_OF_RESOURCES)
+      DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Primary OS Memory allocation failed: out of resources: %d.\n", Pages));
+
+    if (Status == EFI_INVALID_PARAMETER)
+      DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Primary OS Memory allocation failed: invalid param.\n"));
+
+    return Status;
+  }
+  else
+  {
+    DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Primary OS Memory allocation succeeded.\n"));
+  }
 
   //
   // Allocate runtime variable for shared memory region
@@ -260,10 +296,25 @@ SecureKernelInit (
                   SHARED_MEMORY_SIZE,
                   mSharedMemoryBuffer);
 
+  dummyQWORD = 0;
+  Status = mSmmVariable->SmmSetVariable (
+                  SECURE_KERNEL_READY_BOOL,
+                  &gSecureKernelKernelReadyGuid,
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+                  sizeof(dummyQWORD),
+                  &dummyQWORD);
+
+  Status = mSmmVariable->SmmSetVariable (
+                  SECURE_KERNEL_NVS_BASE,
+                  &gSecureKernelKernelNVSBaseGuid,
+                  EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
+                  sizeof(dummyQWORD),
+                  &dummyQWORD);
+
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "SecureKernelSmm: SombraOS failed to register software MMI handler.\n"));
+    DEBUG ((DEBUG_ERROR, "SecureKernelSmm: SombraOS failed to allocate runtime NV variables.\n"));
   } else {
-    DEBUG ((DEBUG_INFO, "SecureKernelSmm: SombraOS successfully registered software MMI handler.\n"));
+    DEBUG ((DEBUG_INFO, "SecureKernelSmm: SombraOS successfully allocated runtime NV Variables.\n"));
   }
 
 #else

@@ -30,7 +30,7 @@ FW CFG Revision: 0x3
 QemuFwCfg interface (DMA) is supported.
 Platform PEIM Loaded
 CMOS:
-00: 55 00 58 00 23 00 01 05 12 21 26 02 00 80 00 00
+00: 37 00 39 00 00 00 02 06 12 21 26 02 00 80 00 00
 10: 00 00 00 00 06 80 02 FF FF 00 00 00 00 00 00 00
 20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 30: FF FF 20 00 00 7F 00 20 30 00 00 00 00 12 00 00
@@ -778,7 +778,7 @@ InstallProtocolInterface: 93BA1826-DFFB-45DD-82A7-E7DCAA3BBDF3 0
 InstallProtocolInterface: 3868FC3B-7E45-43A7-906C-4BA47DE1754D 0
 InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7E073B18
 SmmInstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7FFEAEC0
-Loading SMM driver at 0x0007FE92000 EntryPoint=0x0007FE9481D SecureKernelSmm.efi
+Loading SMM driver at 0x0007FE92000 EntryPoint=0x0007FE9482C SecureKernelSmm.efi
 mSmmMemLibInternalMaximumSupportAddress = 0xFFFFFFFFF
 SecureKernelSmm: SombraOS init entry point.
 SecureKernelSmm: SombraOS init in SMRAM!
@@ -2423,12 +2423,12 @@ Prepare to Free Pool
 FSOpen: Open '\EFI\BOOT\BOOTX64.EFI' Success
 [Bds] Expand PciRoot(0x0)/Pci(0x3,0x0) -> PciRoot(0x0)/Pci(0x3,0x0)/HD(1,GPT,A487A147-80D7-4851-B6FA-0C2375729B8A,0x800,0x100000)/\EFI\BOOT\BOOTX64.EFI
 [Security] 3rd party image[0] can be loaded after EndOfDxe: PciRoot(0x0)/Pci(0x3,0x0)/HD(1,GPT,A487A147-80D7-4851-B6FA-0C2375729B8A,0x800,0x100000)/\EFI\BOOT\BOOTX64.EFI.
-InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7DB67040
-Loading driver at 0x0007D110000 EntryPoint=0x0007D132000 
-InstallProtocolInterface: BC62157E-3E33-4FEC-9920-2D3B36D750DF 7DB65E98
-ProtectUefiImageCommon - 0x7DB67040
-  - 0x000000007D110000 - 0x00000000000D4000
-InstallProtocolInterface: 605DAB50-E046-4300-ABB6-3DD810DD8B23 7D1BF220
+InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7DB60040
+Loading driver at 0x0007D112000 EntryPoint=0x0007D134000 
+InstallProtocolInterface: BC62157E-3E33-4FEC-9920-2D3B36D750DF 7DB67E98
+ProtectUefiImageCommon - 0x7DB60040
+  - 0x000000007D112000 - 0x00000000000D4000
+InstallProtocolInterface: 605DAB50-E046-4300-ABB6-3DD810DD8B23 7D1C1220
 FSOpen: Open '\EFI\BOOT\fbx64.efi' Success
 FSOpen: Open '\EFI\BOOT\fbx64.efi' Success
 FSOpen: Open 'EFI' Success
@@ -2437,15 +2437,15 @@ FSOpen: Open 'BOOTX64.CSV' Success
 FSOpen: Open '\EFI\ubuntu\BOOTX64.CSV' Success
 FSOpen: Open '\EFI\ubuntu\shimx64.efi' Success
 [Security] 3rd party image[0] can be loaded after EndOfDxe: PciRoot(0x0)/Pci(0x3,0x0)/HD(1,GPT,A487A147-80D7-4851-B6FA-0C2375729B8A,0x800,0x100000)/\EFI\ubuntu\shimx64.efi.
-InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7D297040
-Loading driver at 0x0007CF52000 EntryPoint=0x0007CF74000 
-InstallProtocolInterface: BC62157E-3E33-4FEC-9920-2D3B36D750DF 7D29D018
-ProtectUefiImageCommon - 0x7D297040
-  - 0x000000007CF52000 - 0x00000000000D4000
+InstallProtocolInterface: 5B1B31A1-9562-11D2-8E3F-00A0C969723B 7D298040
+Loading driver at 0x0007CF54000 EntryPoint=0x0007CF76000 
+InstallProtocolInterface: BC62157E-3E33-4FEC-9920-2D3B36D750DF 7D29E018
+ProtectUefiImageCommon - 0x7D298040
+  - 0x000000007CF54000 - 0x00000000000D4000
 [Variable]: Rewritten a preexisting variable(0x00000006) with different attributes(0x00000007) - 605DAB50-E046-4300-ABB6-3DD810DD8B23:MokListRT
 [Variable]: Rewritten a preexisting variable(0x00000006) with different attributes(0x00000007) - 605DAB50-E046-4300-ABB6-3DD810DD8B23:MokListXRT
 [Variable]: Rewritten a preexisting variable(0x00000006) with different attributes(0x00000007) - 605DAB50-E046-4300-ABB6-3DD810DD8B23:SbatLevelRT
-InstallProtocolInterface: 605DAB50-E046-4300-ABB6-3DD810DD8B23 7D001220
+InstallProtocolInterface: 605DAB50-E046-4300-ABB6-3DD810DD8B23 7D003220
 FSOpen: Open '\EFI\ubuntu\grubx64.efi' Success
 PixelBlueGreenRedReserved8BitPerColor
 ConvertPages: range 1000000 - 3D9FFFF covers multiple entries
@@ -2462,14 +2462,5 @@ SetUefiImageMemoryAttributes - 0x000000007EAB9000 - 0x0000000000006000 (0x000000
 SetUefiImageMemoryAttributes - 0x000000007EAB5000 - 0x0000000000004000 (0x0000000000000008)
 SetUefiImageMemoryAttributes - 0x000000007EAB1000 - 0x0000000000004000 (0x0000000000000008)
 SecureKernelSmm: SombraOS in kernel init handler, counter: 1
-SecureKernelOS: Successfully Set varaible
-SecureKernelSmm: SombraOS in kernel init handler, counter: 2
-SecureKernelOS: Successfully Set varaible
-SecureKernelSmm: SombraOS in kernel init handler, counter: 3
-SecureKernelOS: Successfully Set varaible
-SecureKernelSmm: SombraOS in kernel init handler, counter: 4
-SecureKernelOS: Successfully Set varaible
-SecureKernelSmm: SombraOS in kernel init handler, counter: 5
-SecureKernelOS: Successfully Set varaible
-SecureKernelSmm: SombraOS in kernel init handler, counter: 6
-SecureKernelOS: Successfully Set varaible
+Access SMM communication forbidden address (0x1234)!
+It is invoked from the instruction before IP(0x7FE93E77) in module (/home/gttyson/edk2/Build/Ovmf3264/DEBUG_GCC5/X64/OvmfPkg/SecureKernelSmm/SecureKernelSmm/DEBUG/SecureKernelSmm.dll)

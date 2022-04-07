@@ -27,4 +27,5 @@ qemu-system-x86_64 \
   -vga std \
   -net user,hostfwd=tcp::2222-:22 \
   -net nic \
+  #-cdrom /home/gttyson/edk2/VM/ubuntu-20.04.3-desktop-amd64.iso
   -nographic

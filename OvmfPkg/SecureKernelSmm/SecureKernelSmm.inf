@@ -45,6 +45,8 @@
 
 [Guids]
   gSecureKernelSharedMemoryGuid
+  gSecureKernelKernelReadyGuid
+  gSecureKernelKernelNVSBaseGuid
   gEfiGlobalVariableGuid
 
 [Depex]
