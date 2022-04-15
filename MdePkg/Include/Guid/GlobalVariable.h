@@ -192,11 +192,11 @@ extern EFI_GUID gEfiGlobalVariableGuid;
 ///
 /// Bool to show if vector has been initiated yet
 ///
-#define SECURE_KERNEL_READY_BOOL   L"SecureKernelReadyBool"
+#define SECURE_KERNEL_READY_BOOL_NAME   L"SecureKernelReadyBool"
 
 ///
 /// Memory address of ACPI NVS aux storage
 ///
-#define SECURE_KERNEL_NVS_BASE   L"SecureKernelNVSBase"
+#define SECURE_KERNEL_NVS_BASE_NAME   L"SecureKernelNVSBase"
 
 #endif

@@ -199,6 +199,7 @@ SecureKernelInit (
   EFI_BOOT_SERVICES                         *BootServices;
   UINTN                                     Pages;
   UINT64                                    dummyQWORD;
+  VOID                                      *Buffer;
 
 #ifndef QEMU_BUILD
   EFI_SMM_SW_DISPATCH2_PROTOCOL             *SwDispatch;
@@ -271,6 +272,8 @@ SecureKernelInit (
     &mPrimaryOsRuntimeMemory
     );
 
+  // Weird cast syntax required to map physical address to useable pointer
+  Buffer = (VOID *)(UINTN)mPrimaryOsRuntimeMemory;
   if (EFI_ERROR (Status))
   {
     if (Status == EFI_OUT_OF_RESOURCES)
@@ -283,7 +286,7 @@ SecureKernelInit (
   }
   else
   {
-    DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Primary OS Memory allocation succeeded.\n"));
+    DEBUG ((DEBUG_ERROR, "SecureKernelSmm: Primary OS Memory allocation succeeded, base: %p\n", mPrimaryOsRuntimeMemory));
   }
 
   //
@@ -298,24 +301,27 @@ SecureKernelInit (
 
   dummyQWORD = 0;
   Status = mSmmVariable->SmmSetVariable (
-                  SECURE_KERNEL_READY_BOOL,
+                  SECURE_KERNEL_READY_BOOL_NAME,
                   &gSecureKernelKernelReadyGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
                   sizeof(dummyQWORD),
                   &dummyQWORD);
 
   Status = mSmmVariable->SmmSetVariable (
-                  SECURE_KERNEL_NVS_BASE,
+                  SECURE_KERNEL_NVS_BASE_NAME,
                   &gSecureKernelKernelNVSBaseGuid,
                   EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS | EFI_VARIABLE_NON_VOLATILE,
-                  sizeof(dummyQWORD),
-                  &dummyQWORD);
+                  sizeof(mPrimaryOsRuntimeMemory),
+                  &mPrimaryOsRuntimeMemory);
 
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "SecureKernelSmm: SombraOS failed to allocate runtime NV variables.\n"));
   } else {
     DEBUG ((DEBUG_INFO, "SecureKernelSmm: SombraOS successfully allocated runtime NV Variables.\n"));
   }
+
+  FreePages(Buffer, Pages);
+  Buffer = NULL;
 
 #else
 
